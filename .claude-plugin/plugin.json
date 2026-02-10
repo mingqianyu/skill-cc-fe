@@ -1,0 +1,51 @@
+{
+  "_comment": "fe-skill 插件清单 - 定义插件的元信息、技能、代理等",
+  "_design_notes": [
+    "【设计理念】plugin.json 是 Claude Code 插件系统的入口文件",
+    "Claude 通过此文件发现和加载所有的 skills、agents、commands",
+    "skills 可以指向目录（自动扫描）或具体文件",
+    "agents 必须指向具体的 .md 文件路径",
+    "hooks 不在此处定义，而是通过 hooks/hooks.json 自动加载",
+    "",
+    "【为什么这样设计】",
+    "1. 声明式配置：Claude 不需要运行代码就能理解插件结构",
+    "2. 模块化：skills/agents/commands 分离，各司其职",
+    "3. 可扩展：新增技能只需在 skills/ 目录下添加文件夹即可"
+  ],
+  "name": "fe-skill",
+  "version": "1.0.0",
+  "description": "面向 Vue 3 + TypeScript + Node.js 全栈开发的 Claude Code 技能包，包含开发规则、工作流、代理和自动化钩子",
+  "author": {
+    "name": "qiaoqiao"
+  },
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "vue3",
+    "typescript",
+    "nodejs",
+    "uni-app",
+    "pinia",
+    "frontend",
+    "fullstack",
+    "skills",
+    "agents",
+    "hooks",
+    "rules"
+  ],
+  "skills": [
+    "./skills/",
+    "./commands/"
+  ],
+  "agents": [
+    "./agents/planner.md",
+    "./agents/code-reviewer.md",
+    "./agents/architect.md",
+    "./agents/vue-reviewer.md",
+    "./agents/build-error-resolver.md",
+    "./agents/security-reviewer.md",
+    "./agents/tdd-guide.md",
+    "./agents/refactor-cleaner.md",
+    "./agents/doc-updater.md"
+  ]
+}

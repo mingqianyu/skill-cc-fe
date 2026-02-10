@@ -1,0 +1,68 @@
+{
+  "_comment": "fe-skill 钩子配置 - 参考开源项目 hooks.json 适配 Vue 3 + Node.js 技术栈",
+  "_design_notes": [
+    "【设计理念】钩子是 Claude Code 的自动化质量保障机制",
+    "每个钩子由 matcher（匹配条件）和 hooks（执行动作）组成",
+    "matcher 使用表达式语法匹配工具名和参数",
+    "钩子按 PreToolUse/PostToolUse/Stop 等生命周期分类"
+  ],
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "tool == \"Bash\" && tool_input.command matches \"(npm run dev|pnpm( run)? dev|yarn dev)\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"console.error('[Hook] 提醒: 开发服务器建议在 tmux 中运行');console.error('[Hook] 使用: tmux new-session -d -s dev \\\"pnpm dev\\\"')\""
+          }
+        ],
+        "description": "开发服务器运行提醒 - 建议使用 tmux 保持会话"
+      },
+      {
+        "matcher": "tool == \"Bash\" && tool_input.command matches \"git push\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"console.error('[Hook] 提醒: push 前请确认已完成代码审查')\""
+          }
+        ],
+        "description": "git push 前提醒审查代码"
+      },
+      {
+        "matcher": "tool == \"Write\" && tool_input.file_path matches \"\\\\.(md|txt)$\" && !(tool_input.file_path matches \"README\\\\.md|CLAUDE\\\\.md|CONTRIBUTING\\\\.md\")",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const fs=require('fs');let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const i=JSON.parse(d);const p=i.tool_input?.file_path||'';if(/\\.(md|txt)$/.test(p)&&!/(README|CLAUDE|CONTRIBUTING)\\.md$/.test(p)){console.error('[Hook] 警告: 正在创建文档文件: '+p);console.error('[Hook] 请确认是否必要，优先使用 README.md')}console.log(d)})\""
+          }
+        ],
+        "description": "阻止创建不必要的文档文件 - 保持文档集中管理"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "tool == \"Edit\" && tool_input.file_path matches \"\\\\.(ts|tsx|js|jsx|vue)$\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const fs=require('fs');let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const i=JSON.parse(d);const p=i.tool_input?.file_path;if(p&&fs.existsSync(p)){const c=fs.readFileSync(p,'utf8');const lines=c.split('\\n');const matches=[];lines.forEach((l,idx)=>{if(/console\\.log/.test(l))matches.push((idx+1)+': '+l.trim())});if(matches.length){console.error('[Hook] 警告: 发现 console.log in '+p);matches.slice(0,5).forEach(m=>console.error(m));console.error('[Hook] 提交前请移除 console.log')}}console.log(d)})\""
+          }
+        ],
+        "description": "编辑代码文件后检测 console.log 并警告"
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const{execSync}=require('child_process');try{const r=execSync('git diff --name-only 2>/dev/null',{encoding:'utf8'});const files=r.split('\\n').filter(f=>/\\.(ts|tsx|js|jsx|vue)$/.test(f));let found=false;for(const f of files){try{const c=require('fs').readFileSync(f,'utf8');if(/console\\.log/.test(c)){if(!found){console.error('[Hook] 会话结束检查: 以下文件包含 console.log');found=true}console.error('  - '+f)}}catch(e){}}if(found)console.error('[Hook] 请在提交前移除 console.log')}catch(e){}\""
+          }
+        ],
+        "description": "会话结束时检查所有修改文件中的 console.log"
+      }
+    ]
+  }
+}
