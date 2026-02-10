@@ -131,9 +131,75 @@ fe-skill/
 
 ## 快速开始
 
-1. 将 `fe-skill` 目录放到你的项目中或 `~/.claude/` 下
-2. Claude Code 会自动识别 `.claude-plugin/plugin.json`
-3. 使用 `/plan` 开始规划你的功能开发
+<!--
+  【重要说明】
+  Claude Code 的插件系统有一个关键限制：
+  rules 无法通过 plugin.json 自动分发，必须手动复制到 ~/.claude/rules/。
+  这是 Claude Code 的设计决定，不是 bug。
+
+  【为什么 rules 不能通过插件分发？】
+  rules 是"始终加载"的全局规则，影响 Claude 的所有行为。
+  如果允许插件自动注入 rules，可能带来安全风险（恶意插件注入规则）。
+  所以 Claude Code 要求用户手动复制 rules，确保用户知情并同意。
+-->
+
+### 方式一：完整安装（推荐）
+
+将技能包的各部分安装到 Claude Code 的全局配置目录：
+
+```bash
+# 1. 克隆仓库
+git clone git@github.com:mingqianyu/skill-cc-fe.git
+cd skill-cc-fe
+
+# 2. 复制 rules 到全局规则目录（⚠️ 必须手动复制，插件系统无法自动加载）
+mkdir -p ~/.claude/rules
+cp rules/*.md ~/.claude/rules/
+
+# 3. 复制 hooks 配置（v2.1+ 会自动从 ~/.claude/hooks/ 加载）
+mkdir -p ~/.claude/hooks
+cp hooks/hooks.json ~/.claude/hooks/
+
+# 4. 将整个技能包目录放到 ~/.claude/ 下，让插件系统加载 skills/agents/commands
+cp -r . ~/.claude/fe-skill
+```
+
+### 方式二：项目级安装
+
+将技能包放到具体项目中，仅对该项目生效：
+
+```bash
+# 1. 将技能包放到项目根目录
+cp -r fe-skill /path/to/your-project/.claude-plugin/
+
+# 2. rules 仍然需要手动复制到全局目录（⚠️ 这是唯一的加载方式）
+mkdir -p ~/.claude/rules
+cp fe-skill/rules/*.md ~/.claude/rules/
+
+# 3. 建议：将 examples/CLAUDE.md 复制到项目根目录并按需修改
+cp fe-skill/examples/CLAUDE.md /path/to/your-project/CLAUDE.md
+```
+
+### 安装后验证
+
+```bash
+# 检查 rules 是否就位
+ls ~/.claude/rules/
+
+# 在 Claude Code 中测试命令
+# 输入 /plan 看是否能正常调用规划工作流
+```
+
+### ⚠️ 关键限制
+
+| 组件 | 能否通过插件自动加载 | 安装方式 |
+|------|---------------------|----------|
+| **skills** | ✅ 可以 | plugin.json 声明路径即可 |
+| **commands** | ✅ 可以 | plugin.json 声明路径即可 |
+| **agents** | ✅ 可以 | plugin.json 声明 .md 文件路径 |
+| **hooks** | ✅ 自动加载 | v2.1+ 自动读取 hooks/hooks.json |
+| **rules** | ❌ 不可以 | 必须手动复制到 `~/.claude/rules/` |
+| **contexts** | ❌ 不可以 | 需要在对话中手动引用 |
 
 ## 致谢
 
