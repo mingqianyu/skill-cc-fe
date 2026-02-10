@@ -143,16 +143,56 @@ fe-skill/
   所以 Claude Code 要求用户手动复制 rules，确保用户知情并同意。
 -->
 
-### 方式一：完整安装（推荐）
+### 方式一：插件市场安装（推荐）
 
-将技能包的各部分安装到 Claude Code 的全局配置目录：
+<!--
+  【设计理念】
+  这是开源项目使用的标准安装方式。
+  通过 marketplace.json 注册到 Claude Code 插件市场，
+  用户可以用 /plugin 命令一键安装 skills/agents/commands。
+  但 rules 仍需手动复制。
+-->
+
+```bash
+# 1. 添加插件市场源
+/plugin marketplace add mingqianyu/skill-cc-fe
+
+# 2. 安装插件（自动加载 skills、agents、commands、hooks）
+/plugin install fe-skill@skill-cc-fe
+
+# 3. 手动安装 rules（⚠️ 插件系统无法自动分发 rules）
+git clone git@github.com:mingqianyu/skill-cc-fe.git
+cp -r skill-cc-fe/rules/*.md ~/.claude/rules/
+```
+
+也可以通过编辑 `~/.claude/settings.json` 手动配置：
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "skill-cc-fe": {
+      "source": {
+        "source": "github",
+        "repo": "mingqianyu/skill-cc-fe"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "fe-skill@skill-cc-fe": true
+  }
+}
+```
+
+### 方式二：手动完整安装
+
+将技能包的各部分手动安装到 Claude Code 的全局配置目录：
 
 ```bash
 # 1. 克隆仓库
 git clone git@github.com:mingqianyu/skill-cc-fe.git
 cd skill-cc-fe
 
-# 2. 复制 rules 到全局规则目录（⚠️ 必须手动复制，插件系统无法自动加载）
+# 2. 复制 rules 到全局规则目录（⚠️ 必须手动复制）
 mkdir -p ~/.claude/rules
 cp rules/*.md ~/.claude/rules/
 
@@ -164,7 +204,7 @@ cp hooks/hooks.json ~/.claude/hooks/
 cp -r . ~/.claude/fe-skill
 ```
 
-### 方式二：项目级安装
+### 方式三：项目级安装
 
 将技能包放到具体项目中，仅对该项目生效：
 
