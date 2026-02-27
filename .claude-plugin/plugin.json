@@ -1,16 +1,4 @@
 {
-  "_comment": "fe-skill 插件清单",
-  "_design_notes": [
-    "【设计理念】plugin.json 是 Claude Code 插件系统的入口文件",
-    "Claude 通过此文件发现和加载 skills、agents、commands",
-    "",
-    "【关键约束（来自开源项目的踩坑经验）】",
-    "1. version 字段必需，验证器会强制检查",
-    "2. agents 必须使用显式 .md 文件路径，不能用目录",
-    "3. commands 和 skills 可以使用目录路径",
-    "4. 不要在此声明 hooks，v2.1+ 会自动加载 hooks/hooks.json",
-    "5. rules 无法通过插件分发，必须手动复制到 ~/.claude/rules/"
-  ],
   "name": "fe-skill",
   "version": "1.0.0",
   "description": "面向 Vue 3 + TypeScript + Node.js 全栈开发的 Claude Code 技能包，包含开发规则、工作流、代理和自动化钩子",
