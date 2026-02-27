@@ -1,20 +1,4 @@
 {
-  "_comment_zh": "市场清单：供 /plugin marketplace add 使用，列出本市场所含插件",
-  "_design_notes": [
-    "【设计理念】marketplace.json 让仓库可以被 Claude Code 插件市场发现",
-    "",
-    "【工作流程】",
-    "1. 用户执行: /plugin marketplace add mingqianyu/skill-cc-fe",
-    "2. Claude Code 去 GitHub 仓库读取 .claude-plugin/marketplace.json",
-    "3. 解析 plugins 数组，展示可安装的插件列表",
-    "4. 用户执行: /plugin install fe-skill@skill-cc-fe",
-    "5. Claude Code 根据 plugin.json 加载 skills/agents/commands",
-    "",
-    "【注意事项】",
-    "- name 字段要和 plugin.json 的 name 一致",
-    "- source 指向插件根目录（'./' 表示当前仓库根目录）",
-    "- rules 仍然需要用户手动复制，插件系统无法自动分发"
-  ],
   "name": "skill-cc-fe",
   "owner": {
     "name": "qiaoqiao"
